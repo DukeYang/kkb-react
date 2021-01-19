@@ -2,7 +2,7 @@
 // node dom节点
 
 function render(vnode, container) {
-  console.log("vnode", vnode); //sy-log
+  console.log('vnode', vnode); //sy-log
   // vnode - > node
   const node = createNode(vnode);
 
@@ -11,7 +11,7 @@ function render(vnode, container) {
 }
 
 function isStringOrNumber(sth) {
-  return typeof sth === "string" || typeof sth === "number";
+  return typeof sth === 'string' || typeof sth === 'number';
 }
 
 // vnode->node
@@ -20,9 +20,9 @@ function createNode(vnode) {
 
   // todo 生成node
 
-  const {type} = vnode;
+  const { type } = vnode;
 
-  if (typeof type === "string") {
+  if (typeof type === 'string') {
     // console.log("原生标签", vnode); //sy-log
     // 原生标签节点
     node = updateHostComponent(vnode);
@@ -30,19 +30,27 @@ function createNode(vnode) {
     // console.log("文本", vnode); //sy-log
     // 文本 (字符串或者是数字)
     node = updateTextComponent(vnode);
-  } else if (typeof type === "function") {
+  } else if (typeof type === 'function') {
     // 再判断是函数组件还是类组件
     node = type.prototype.isReactComponent
       ? updateClassComponent(vnode)
       : updateFunctionComponent(vnode);
+  } else {
+    node = createFragmentComponent(vnode);
   }
 
   return node;
 }
 
+function createFragmentComponent(vnode) {
+  const node = document.createDocumentFragment();
+  reconcileChildren(node, vnode.props.children);
+  return node;
+}
+
 function updateNode(node, nextVal) {
   Object.keys(nextVal)
-    .filter((k) => k !== "children")
+    .filter((k) => k !== 'children')
     .forEach((k) => {
       node[k] = nextVal[k];
     });
@@ -50,7 +58,7 @@ function updateNode(node, nextVal) {
 
 // 原生标签节点
 function updateHostComponent(vnode) {
-  const {type, props} = vnode;
+  const { type, props } = vnode;
   const node = document.createElement(type);
   updateNode(node, props);
   reconcileChildren(node, props.children);
@@ -58,13 +66,13 @@ function updateHostComponent(vnode) {
 }
 
 function updateTextComponent(vnode) {
-  const node = document.createTextNode(vnode + "");
+  const node = document.createTextNode(vnode + '');
   return node;
 }
 
 // 函数组件
 function updateFunctionComponent(vnode) {
-  const {type, props} = vnode;
+  const { type, props } = vnode;
   const child = type(props);
   // vnode->node
   const node = createNode(child);
@@ -73,7 +81,7 @@ function updateFunctionComponent(vnode) {
 
 // 类组件
 function updateClassComponent(vnode) {
-  const {type, props} = vnode;
+  const { type, props } = vnode;
   const instance = new type(props);
   const child = instance.render();
 
@@ -93,4 +101,4 @@ function reconcileChildren(parentNode, children) {
   }
 }
 
-export default {render};
+export default { render };
